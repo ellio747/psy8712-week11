@@ -1,11 +1,13 @@
 # Script Settings and Resources
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-# library(haven) 
 library(tidyverse) 
 library(caret) 
 # remotes::install_version("xgboost", version = "1.6.0.1", repos = "https://cran.r-project.org") 
 library(xgboost)
-library(parallel) # added `paralell` package to conduct parallelized models
+library(parallel) # added `parallel` package to conduct parallelized models
+library(doParallel) # added `doParallel` package to conduct parallelized models
+# library(tictoc)
+# library(microbenchmark) # this will provide an operation to provide a whats faster
 set.seed(123) 
 
 # Data Import and Cleaning
@@ -31,26 +33,38 @@ holdout_indices <- createDataPartition(gss_tbl$`work hours`, p = .25, list=F)
 gss_training <- gss_tbl[holdout_indices,] 
 gss_holdout <- gss_tbl[-holdout_indices,] 
 
-## Define consistent folds 
-cv_control <- trainControl(
-  method="cv", 
-  number=10, 
-  search = "random",
-  verboseIter = T 
-)
-
 ## Run k-fold testing hyperparameters on training set
 # I modified each of the models below by adding `system.time` and storing the results in a new variable, which I then added to my table2_tbl
-mod1_tm <- system.time({
+
+mod1_tm <- system.time({ # added wrapper for system.time around all models, storing the variable for table2_tbl construction
   model1 <- train(
-  `work hours` ~ ., 
-  gss_training, 
-  na.action = na.pass, 
-  method = "lm", 
-  preProcess = c("zv", "medianImpute","center","scale"), 
-  trControl=cv_control 
+    `work hours` ~ ., 
+    gss_training, 
+    na.action = na.pass, 
+    method = "lm", 
+    preProcess = c("zv", "medianImpute","center","scale"), 
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
   )
 })
+
+local_cluster <- makeCluster(7) # using `detectCores()` I identified 8 cores, subtracting 1, I began the local cluster for parallelization
+registerDoParallel(local_cluster) # activate cluster
+mod1_tm_par <- system.time({
+  model1 <- train(
+    `work hours` ~ ., 
+    gss_training, 
+    na.action = na.pass, 
+    method = "lm", 
+    preProcess = c("zv", "medianImpute","center","scale"), 
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
+  )
+})
+stopCluster(local_cluster) # deactivate cluster
+registerDoSEQ() # explicit registration of the backend of a cluster
 
 mod2_tm <- system.time({
   model2 <- train(
@@ -63,9 +77,31 @@ mod2_tm <- system.time({
       alpha = c(0,1), 
       lambda = seq(0.0001, 0.1, length = 10) 
     ),
-    trControl = cv_control 
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
   )
 })
+
+registerDoParallel(local_cluster) # start cluster again
+mod2_tm_par <- system.time({
+  model2 <- train(
+    `work hours` ~ ., 
+    gss_training, 
+    na.action = na.pass, 
+    method = "glmnet", 
+    preProcess = c("zv", "medianImpute","center","scale"),
+    tuneGrid = expand.grid( 
+      alpha = c(0,1), 
+      lambda = seq(0.0001, 0.1, length = 10) 
+    ),
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
+  )
+})
+stopCluster(local_cluster) # end cluster
+registerDoSEQ() # explicit registration of cluster backend
 
 mod3_tm <- system.time({
   model3 <- train(
@@ -74,34 +110,60 @@ mod3_tm <- system.time({
     na.action = na.pass, 
     method = "ranger", 
     preProcess = c("zv", "medianImpute","center","scale"),
-    tuneGrid = expand.grid( 
-      mtry = c(23, 178, 267, 535), 
-      splitrule = c("variance", "extratrees"), 
-      min.node.size = 5 
-    ),
-    trControl=cv_control 
+    tuneLength = 5,
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
   )
 })
 
-mod4_tm <- system.time({
+registerDoParallel(local_cluster) # restart cluster
+mod3_tm_par <- system.time({
+  model3 <- train(
+    `work hours` ~ ., 
+    gss_training, 
+    na.action = na.pass, 
+    method = "ranger", 
+    preProcess = c("zv", "medianImpute","center","scale"),
+    tuneLength = 5,
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    )
+  )
+})
+stopCluster(local_cluster) # end cluster
+registerDoSEQ() # explicit registration of cluster backend
+
+mod4_tm <- system.time({ 
   model4 <- train(
     `work hours` ~., 
     gss_training, 
     na.action = na.pass, 
     method = "xgbTree", 
     preProcess = c("zv", "medianImpute", "center", "scale"),
-    tuneGrid = expand.grid( 
-      nrounds = 300, 
-      eta = c(0.01, 0.3),  
-      max_depth = c(6, 9), 
-      min_child_weight = c(1, 5), 
-      gamma = c(0, 1), 
-      colsample_bytree = c(.5, 1), 
-      subsample = c(.5, 1) 
-    ),
-    trControl = cv_control 
+    tuneLength = 5,
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    ) 
   )
 })
+
+registerDoParallel(local_cluster) # restart cluster
+mod4_tm_par <- system.time({ 
+  model4 <- train(
+    `work hours` ~., 
+    gss_training, 
+    na.action = na.pass, 
+    method = "xgbTree", 
+    preProcess = c("zv", "medianImpute", "center", "scale"),
+    tuneLength = 5,
+    trControl=trainControl(
+      method="cv", number=10, verboseIter=T 
+    ) 
+  )
+})
+stopCluster(local_cluster) # end cluster
+registerDoSEQ() # explicit registration of cluster backend
 
 ## Examine k-fold CV results
 summary(resamples(list(model1,model2, model3, model4))) 
@@ -127,9 +189,13 @@ table1_tbl <- tibble(
 ) %>% 
   write_csv(file = "../figs/table1.csv") 
 
-tbl2_tbl <- tibble(
+# Table 2 created below using code for `original` and `parallelized` that extracts the [[3]] element, which is the elapsed time of the system.time() function. I obtained in two columns, one for original and the other for parallelized. 
+table2_tbl <- tibble( 
   original = c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]),
-  parallelized = c(1,2,3,4)
+  parallelized = c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]])
 ) %>% 
   write_csv(file = "../figs/table2.csv") 
 
+# The non-linear tree-based models benefited most from parallelization. This is because parallelization increased the logical processors that could conduct the simultaneous operations required to reduce the speed of more complex models. 
+# The largest difference for the fastest model was a 198 second increase to speed in the xgbTree model. The elastic net model which was parallelized was actually .82 seconds slower. This is because xgbTree is very complex, where the unparallelized model has a 2.55 realitive time compared to the parallelized model. 
+# I would recommend the use of model3, the Random Forest model. This is because the model has the most variance explained of all the models at the current hyperparameter tuning settings. When parallelized, the random forest model also has a relative time 4.5 times faster than the xgbTree parallelized model. Taken together the variance explained is much higher at a faster speed.  
