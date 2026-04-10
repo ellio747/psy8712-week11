@@ -189,14 +189,14 @@ table1_tbl <- tibble(
                               postResample(pred3, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0")
 ) %>% 
-  write_csv(file = "../figs/table1.csv") 
+  write_csv(file = "../out/table1.csv") 
 
 # Table 2 created below using code for `original` and `parallelized` that extracts the [[3]] element, which is the elapsed time of the system.time() function. I obtained in two columns, one for original and the other for parallelized. 
 table2_tbl <- tibble( 
   original = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
   parallelized = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"),
 ) %>% 
-  write_csv(file = "../figs/table2.csv") 
+  write_csv(file = "../out/table2.csv") 
 
 # The non-linear tree-based models benefited most from parallelization. This is because parallelization increased the logical processors that could conduct the simultaneous operations required to reduce the speed of more complex models. 
 # The largest difference for the fastest model was a 155 second increase to speed in the xgbTree model. The OLS linear model which was parallelized was only 1.56 seconds faster. This is because xgbTree is very complex, where the unparallelized model has a 3.98 relative time compared to the parallelized model. 
