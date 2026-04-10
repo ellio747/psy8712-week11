@@ -163,7 +163,6 @@ registerDoSEQ()
 
 ## Examine k-fold CV results
 summary(resamples(list(model1,model2, model3, model4))) 
-dotplot(resamples(list(model1,model2, model3, model4)), metric = "Rsquared")  
 
 ## Compare to holdout CV results
 pred1 <- predict(model1, newdata = gss_holdout, na.action = na.pass) 
