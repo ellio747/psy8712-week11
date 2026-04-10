@@ -1,7 +1,6 @@
 # Script Settings and Resources
 # removed working directory
 library(dplyr) #changed out of tidyverse to dplyr
-library(stringr) #likewise removed tidyverse and called stringr for the string removals for tabling
 library(caret) 
 library(xgboost)
 library(parallel) 
@@ -173,21 +172,21 @@ pred4 <- predict(model4, newdata = gss_holdout, na.action = na.pass)
 # Publication
 table3_tbl <- tibble( 
   algo = c(model1$method, model2$method, model3$method, model4$method), 
-  cv_rsq = str_remove(round(c(getTrainPerf(model1)$TrainRsquared, 
+  cv_rsq = round(c(getTrainPerf(model1)$TrainRsquared, 
                               getTrainPerf(model2)$TrainRsquared, 
                               getTrainPerf(model3)$TrainRsquared,
-                              getTrainPerf(model4)$TrainRsquared), 2), "^0"),
-  ho_rsq = str_remove(round(c(postResample(pred1, gss_holdout$mosthrs)["Rsquared"], 
+                              getTrainPerf(model4)$TrainRsquared), 2),
+  ho_rsq = round(c(postResample(pred1, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred2, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred3, gss_holdout$mosthrs)["Rsquared"], 
-                              postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0")
+                              postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2)
 )
 write.csv(table3_tbl, file = "../out/table3.csv") #changed to utils function rather than readr for simplicity
 
 
 table4_tbl <- tibble( 
-  supercomputer = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
-  supercomputer_127 = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0") #msismall has 128 max cores with 1 max node - this is what I will request
+  supercomputer = round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2),
+  supercomputer_127 = round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2) #msismall has 128 max cores with 1 max node - this is what I will request
 ) 
 write.csv(table4_tbl, file = "../out/table4.csv") #changed to utils function rather than readr for simplicity
 
