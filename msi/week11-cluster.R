@@ -1,12 +1,15 @@
 # Script Settings and Resources
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-library(tidyverse) 
+library(dplyr)
+library(stringr)
 library(caret) 
 library(xgboost)
 library(parallel) 
 library(doParallel) 
+library(tictoc)
 set.seed(123) 
 
+tic()
 # Data Import and Cleaning
 gss_import_tbl <- haven::read_sav("../data/GSS2016.sav", user_na = T) %>% 
   haven::zap_missing() %>% 
@@ -101,7 +104,7 @@ mod3_tm <- system.time({
     na.action = na.pass, 
     method = "ranger", 
     preProcess = c("medianImpute","center","nzv", "scale"), 
-    tuneLength = 3, 
+    tuneLength = 1, 
     trControl=trainControl(
       method="cv", number=10, verboseIter=T 
     )
@@ -117,7 +120,7 @@ mod3_tm_par <- system.time({
     na.action = na.pass, 
     method = "ranger", 
     preProcess = c("medianImpute","center","nzv", "scale"), 
-    tuneLength = 3, 
+    tuneLength = 1, 
     trControl=trainControl(
       method="cv", number=10, verboseIter=T 
     )
@@ -133,7 +136,7 @@ mod4_tm <- system.time({
     na.action = na.pass, 
     method = "xgbTree", 
     preProcess = c("medianImpute","center","nzv", "scale"), 
-    tuneLength = 3, 
+    tuneLength = 1, 
     trControl=trainControl(
       method="cv", number=10, verboseIter=T 
     ) 
@@ -149,7 +152,7 @@ mod4_tm_par <- system.time({
     na.action = na.pass, 
     method = "xgbTree", 
     preProcess = c("medianImpute","center","nzv", "scale"), 
-    tuneLength = 3, 
+    tuneLength = 1, 
     trControl=trainControl(
       method="cv", number=10, verboseIter=T 
     ) 
@@ -178,13 +181,15 @@ table3_tbl <- tibble(
   ho_rsq = str_remove(round(c(postResample(pred1, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred2, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred3, gss_holdout$mosthrs)["Rsquared"], 
-                              postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0")
-) %>% 
-  write_csv(file = "../figs/table3.csv") 
+                              postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0"))
+# ) %>% 
+#   write_csv(file = "../figs/table3.csv") 
 
 
 table4_tbl <- tibble( 
   supercomputer = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
-  supercomputer_7 = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"),
-) %>% 
-  write_csv(file = "../figs/table4.csv") 
+  supercomputer_7 = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"))
+# ) %>% 
+#   write_csv(file = "../figs/table4.csv") 
+
+toc()
