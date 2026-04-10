@@ -1,5 +1,5 @@
 # Script Settings and Resources
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) removed working directory
 library(dplyr) #changed out of tidyverse to dplyr
 library(stringr) #likewise removed tidyverse and called stringr for the string removals for tabling
 library(caret) 
