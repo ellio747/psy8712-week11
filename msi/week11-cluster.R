@@ -41,7 +41,7 @@ mod1_tm <- system.time({
 })
 
 
-local_cluster <- makeCluster(7) 
+local_cluster <- makeCluster(127) # added 127 cores
 registerDoParallel(local_cluster) 
 mod1_tm_par <- system.time({
   model1 <- train(
@@ -76,7 +76,7 @@ mod2_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(7) 
+local_cluster <- makeCluster(127) # added 127 cores
 registerDoParallel(local_cluster) 
 mod2_tm_par <- system.time({
   model2 <- train(
@@ -111,7 +111,7 @@ mod3_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(7) 
+local_cluster <- makeCluster(127) # added 127 cores
 registerDoParallel(local_cluster) 
 mod3_tm_par <- system.time({
   model3 <- train(
@@ -143,7 +143,7 @@ mod4_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(7) 
+local_cluster <- makeCluster(127) # added 127 cores
 registerDoParallel(local_cluster) 
 mod4_tm_par <- system.time({ 
   model4 <- train(
