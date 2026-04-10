@@ -193,8 +193,8 @@ table1_tbl <- tibble(
 
 # Table 2 created below using code for `original` and `parallelized` that extracts the [[3]] element, which is the elapsed time of the system.time() function. I obtained in two columns, one for original and the other for parallelized. 
 table2_tbl <- tibble( 
-  original = c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]),
-  parallelized = c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]])
+  original = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
+  parallelized = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"),
 ) %>% 
   write_csv(file = "../figs/table2.csv") 
 
