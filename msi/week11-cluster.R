@@ -182,14 +182,14 @@ table3_tbl <- tibble(
                               postResample(pred2, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred3, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0")
-) %>% 
-write_csv(file = "../figs/table3.csv") 
+)
+write.csv(table3_tbl, file = "../figs/table3.csv") #changed to utils function rather than readr for simplicity
 
 
 table4_tbl <- tibble( 
   supercomputer = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
   supercomputer_127 = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0") #msismall has 128 max cores with 1 max node - this is what I will request
-) %>% 
-write_csv(file = "../figs/table4.csv") 
+) 
+write.csv(table4_tbl, file = "../figs/table4.csv") #changed to utils function rather than readr for simplicity
 
 # toc()
