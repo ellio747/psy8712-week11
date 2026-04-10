@@ -17,11 +17,6 @@ gss_tbl <- gss_import_tbl %>%
   mutate(across(everything(), as.numeric)) %>% 
   as_tibble() 
 
-# Visualization
-(ggplot(gss_tbl, aes(x = mosthrs)) + 
-  geom_histogram(binwidth = 4)) %>%  
-  ggsave(filename = "../figs/hours_histogram.png", width = 1920, height = 1080, units = "px", dpi = 300)
-
 # Analysis 
 
 ## Define training and test sets
@@ -174,7 +169,7 @@ pred3 <- predict(model3, newdata = gss_holdout, na.action = na.pass)
 pred4 <- predict(model4, newdata = gss_holdout, na.action = na.pass)
 
 # Publication
-table1_tbl <- tibble( 
+table3_tbl <- tibble( 
   algo = c(model1$method, model2$method, model3$method, model4$method), 
   cv_rsq = str_remove(round(c(getTrainPerf(model1)$TrainRsquared, 
                               getTrainPerf(model2)$TrainRsquared, 
@@ -185,11 +180,11 @@ table1_tbl <- tibble(
                               postResample(pred3, gss_holdout$mosthrs)["Rsquared"], 
                               postResample(pred4, gss_holdout$mosthrs)["Rsquared"]), 2), "^0")
 ) %>% 
-  write_csv(file = "../figs/table1.csv") 
+  write_csv(file = "../figs/table3.csv") 
 
 
-table2_tbl <- tibble( 
-  original = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
-  parallelized = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"),
+table4_tbl <- tibble( 
+  supercomputer = str_remove(round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2), "^0"),
+  supercomputer_7 = str_remove(round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2), "^0"),
 ) %>% 
-  write_csv(file = "../figs/table2.csv") 
+  write_csv(file = "../figs/table4.csv") 
