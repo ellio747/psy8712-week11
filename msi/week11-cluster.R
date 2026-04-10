@@ -42,7 +42,7 @@ mod1_tm <- system.time({
 })
 
 
-local_cluster <- makeCluster(127) # added 127 cores
+local_cluster <- makeCluster(31) # added 31 cores
 registerDoParallel(local_cluster) 
 mod1_tm_par <- system.time({
   model1 <- train(
@@ -77,7 +77,7 @@ mod2_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(127) # added 127 cores
+local_cluster <- makeCluster(31) # added 31 cores
 registerDoParallel(local_cluster) 
 mod2_tm_par <- system.time({
   model2 <- train(
@@ -112,7 +112,7 @@ mod3_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(127) # added 127 cores
+local_cluster <- makeCluster(31) # added 31 cores
 registerDoParallel(local_cluster) 
 mod3_tm_par <- system.time({
   model3 <- train(
@@ -144,7 +144,7 @@ mod4_tm <- system.time({
   )
 })
 
-local_cluster <- makeCluster(127) # added 127 cores
+local_cluster <- makeCluster(31) # added 31 cores
 registerDoParallel(local_cluster) 
 mod4_tm_par <- system.time({ 
   model4 <- train(
@@ -188,7 +188,7 @@ write.csv(table3_tbl, file = "../out/table3.csv") #changed to utils function rat
 
 table4_tbl <- tibble( 
   supercomputer = round(c(mod1_tm[[3]],mod2_tm[[3]],mod3_tm[[3]],mod4_tm[[3]]), 2),
-  supercomputer_127 = round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2) #msismall has 128 max cores with 1 max node - this is what I will request
+  supercomputer_31 = round(c(mod1_tm_par[[3]],mod2_tm_par[[3]],mod3_tm_par[[3]],mod4_tm_par[[3]]), 2) #msismall has 128 max cores with 1 max node - this is what I will request
 ) 
 write.csv(table4_tbl, file = "../out/table4.csv") #changed to utils function rather than readr for simplicity
 
