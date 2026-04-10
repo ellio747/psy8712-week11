@@ -2,6 +2,8 @@
 # removed working directory
 library(dplyr) #changed out of tidyverse to dplyr
 library(caret) 
+library(glmnet) # had to add these two as I was beta testing in interactive mode
+library(ranger) # had to add these two as I was beta testing in interactive mode
 library(xgboost)
 library(parallel) 
 library(doParallel) 
