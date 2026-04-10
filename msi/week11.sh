@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --ntasks=127
+#SBATCH --ntasks=128
 #SBATCH --mem=16gb
 #SBATCH -t 2:00:00
 #SBATCH --mail-type=ALL
