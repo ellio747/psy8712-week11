@@ -192,4 +192,8 @@ table4_tbl <- tibble(
 ) 
 write.csv(table4_tbl, file = "../out/table4.csv") #changed to utils function rather than readr for simplicity
 
+# The tree-based models benefited most from moving to supercomputing. This is because many more logical processors were conducting simultaneous operations. 
+# In tree-based models (random forest and xgbTree) as the number of cores increases, the processing time decreases. For the linear models there is not nearly the same relationship and it appears from my trial that as cores increase, time stays the same.
+# I would recommend the supercomputer-based xgbTree modell. While using the supercomputer the xgbTree accounted for less variance explained than the RF model, its out of sample variance explained was quite good. It also had a very fast processing time using a supercomputer and this was only using 31 cores and without tuning many hyperparameters. In both cases these could be boosted for a better model overall. 
+
 # toc()
